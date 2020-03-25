@@ -1,0 +1,117 @@
+// set up a simple neutral simulation
+// values were scaled by 100 to reduce Ne from 3e7 to 3e5
+
+initialize() {
+ initializeSLiMModelType("nonWF");
+ // defineConstant("K", 3e5); // carrying capacity 3e7
+ // defineConstant("fracSel", 3e3); // Selected fraction after growth 3e5
+ // defineConstant("L", 1e6); // chromosome length 3e6
+ // defineConstant("H", 0.01); // outcrossing probability
+ // defineConstant("sel", 0.01); // fraction of selection
+ // defineConstant("propS", 10000); // outcrossing probability
+ // defineConstant("gen", 750); // Number of generations
+ initializeMutationType("m1", 1.0, "f", 0.0); // neutral 
+ // m1.convertToSubstitution = T;
+ initializeGenomicElementType("g1", m1, 1.0);
+ initializeGenomicElement(g1, 0, L-1);
+ initializeMutationRate(mut_rate); // no mutations 2e-10
+ initializeRecombinationRate(recon_rate); // no recombination 1e-6
+}
+
+reproduction() {
+if (sim.generation > 2)
+{
+	popSize = p1.individualCount;
+	if (popSize < fracSel+(fracSel/2))
+	{
+		// catn("largePopSize");
+		if (runif(1) < H)
+		{
+			// recombination 
+			// catn("recombination");
+			genome_2 = p1.sampleIndividuals(1, exclude=individual).genome1;
+			breaks = sim.chromosome.drawBreakpoints(individual);
+			p1.addRecombinant(genome1, genome_2, breaks, NULL, NULL, NULL);
+			p1.addRecombinant(genome_2, genome1, breaks, NULL, NULL, NULL);
+		}
+		else
+		{
+			// no recombination; clonal replication
+			p1.addRecombinant(genome1, NULL, NULL, NULL, NULL, NULL);
+		}
+	}
+	else
+	{
+		p1.addRecombinant(genome1, NULL, NULL, NULL, NULL, NULL);
+	}
+}
+else
+{
+	p1.addRecombinant(genome1, NULL, NULL, NULL, NULL, NULL);
+}
+}
+
+
+1 early() {
+// start from 3e5 individuals
+sim.addSubpop("p1", fracSel);
+}
+
+early() {
+// density-dependent population regulation
+popSize = p1.individualCount;
+if (popSize < K*2)
+{
+	p1.fitnessScaling = K / p1.individualCount;
+}
+else
+{
+	p1.fitnessScaling = fracSel / p1.individualCount;
+}
+}
+
+2:10000 late() {
+	if(sim.generation < gen)
+	{
+		muts = sim.mutationsOfType(m1);
+ 		freqs = sim.mutationFrequencies(NULL, muts);
+		if (any(freqs == 0.5))
+ 		sim.subpopulations.genomes.removeMutations(muts[freqs == 0.5], T);
+ 		inds = p1.individuals;
+ 		catn("gen:" + sim.generation + " ind:" + size(inds) + " mutations:" + size(muts) + ":" + size(sim.substitutions));
+ 	} 
+ 	else
+ 	{
+ 		inds = p1.individuals;
+ 		if(size(inds) < (K/2) )
+ 		{
+ 		muts = sim.mutationsOfType(m1);
+ 		freqs = sim.mutationFrequencies(NULL, muts);
+		if (any(freqs == 0.5))
+ 		sim.subpopulations.genomes.removeMutations(muts[freqs == 0.5], T);
+ 		inds = p1.individuals;
+ 		catn("gen:" + sim.generation + " ind:" + size(inds) + " mutations:" + size(muts) + ":" + size(sim.substitutions));
+ 		}
+ 		else
+ 		{
+		cat("Sel Effect size:\n");
+		cat("\n");
+ 		cat("Sel Freq Effect size:\n");
+ 		// cat(m2freqs + "\n");
+ 		cat("Neutral Effect size:\n");
+		m1muts = sim.mutationsOfType(m1);
+ 		m1effects = m1muts.selectionCoeff;
+ 		m1freqs = sim.mutationFrequencies(NULL, m1muts);
+ 		cat(m1effects + "\n");
+ 		cat("Neutral Freq Effect size:\n");
+ 		cat(m1freqs + "\n");
+ 		// substitution effect:
+		cat("EffectSubs" + "\n");
+		cat(sim.substitutions.selectionCoeff + "\n");
+ 		sim.simulationFinished();
+ 		}
+ 	}
+}
+
+
+

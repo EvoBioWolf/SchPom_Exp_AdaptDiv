@@ -1,0 +1,73 @@
+// set up a simple neutral simulation
+// values were scaled by 100 to reduce Ne from 3e7 to 3e5
+
+
+initialize()
+{
+	// set the overall mutation rate
+	// original u= 2e-10
+	initializeMutationRate(2e-8);
+	// m1 mutation type: neutral
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	// g1 genomic element type: uses m1 for all mutations
+	initializeGenomicElementType("g1", m1, 1.0);
+	// uniform chromosome of length 3 Mb
+	initializeGenomicElement(g1, 0, 3000000);
+	// uniform recombination along the chromosome
+	// original r=1e-6
+	initializeRecombinationRate(1e-4);
+}
+
+// create a population of 3e5 individuals
+1 {
+	sim.addSubpop("p1", 3e3);
+	// p1.setCloningRate(0.9999999999);
+	p1.setCloningRate(1);
+}
+
+2:1000000000 late() {
+	if(sim.generation < gen)
+	{
+		// cat(sim.generation);
+		// cat("\n");
+		if(p1.individualCount < 3e5)
+		{
+ 			p1.setCloningRate(1);
+ 			newSize = asInteger(p1.individualCount*round(2.71828));
+ 			p1.setSubpopulationSize(newSize);
+ 		}
+ 		else
+ 		{
+ 			p1.setCloningRate(0.9);
+ 			p1.setSubpopulationSize(3e3);
+ 		}
+ 	}
+ 	else 
+ 	{
+ 		g = sample(sim.subpopulations.genomes, 400, T);
+		m = sortBy(unique(g.mutations), "position");
+		// Number of segregating sites
+		// cat("SS" + size(m) + "\n");
+		// print Fixed variants:
+		// cat("FV" + size(sim.substitutions) + "\n");
+		cat(size(sim.substitutions) + "\n");
+		// Print Frequencies
+		for (snp in m)
+		{
+			mutant = 0;
+			countedGenomes = 0;
+			for(genome in g)
+			{
+				countedGenomes = countedGenomes + 1;
+				hasMuts = (match(snp, genome.mutations) >= 0);
+				// cat(paste(asInteger(hasMuts), "") + "\n");
+				mutant = mutant + asInteger(hasMuts);
+			}
+		// cat(paste(c(countedGenomes, " ", mutant, "\n")));
+		cat(paste(asFloat(mutant/countedGenomes), "") + "\n");
+		}
+		cat("\n");
+		sim.simulationFinished();
+ 	}
+}
+
