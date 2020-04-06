@@ -16,7 +16,7 @@
 # Cleaning of raw data
 # CLEANUP
 
-detectAdapters.sh $reads1 $reads2
+detectAdapters_localdir.sh $reads1 $reads2
 
 mv *cutReport ./cutreport/
 
