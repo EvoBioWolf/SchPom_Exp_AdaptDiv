@@ -5,6 +5,9 @@
 # Jochen Wolf Lab. 
 # +++++++++++++++++++++++++++++++++++++++++++++++++
 
+### 
+# Raw data for phenotypic and genomic analyses can be found with their corresponding scripts within the folder "Scripts".
+
 ### phenotypic analyses:
 
 # all fitness measurements were analyses using the R script fitness_calculation.R
