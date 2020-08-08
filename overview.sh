@@ -1,6 +1,6 @@
 # ==================================================
 # Documents and scripts were written by: Sergio Tusso
-# For manuscript: Tusso, et al. (2020). "The effect of gene flow on adaptive divergence" (under review). 
+# For manuscript: Tusso, et al. (2020). "Gene flow, fitness trade-offs and ancestral variation govern adaptive divergence" (under review). 
 # email: situssog@gmail.com
 # Jochen Wolf Lab. 
 # +++++++++++++++++++++++++++++++++++++++++++++++++
